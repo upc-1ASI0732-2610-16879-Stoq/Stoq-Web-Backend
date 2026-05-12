@@ -19,13 +19,11 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+            // URL "/" = mismo origen que la UI (funciona en local, Docker y cualquier dominio público).
             .servers(List.of(
-//                new Server()
-//                    .url("https://stocktrack-backend-production.up.railway.app")
-//                    .description("Production Server"),
                 new Server()
-                    .url("http://localhost:8080")
-                    .description("Local Development Server")
+                    .url("/")
+                    .description("Servidor actual (misma URL que Swagger)")
             ))
             .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
             .components(new Components()

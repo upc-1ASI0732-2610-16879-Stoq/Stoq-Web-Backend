@@ -11,3 +11,6 @@ Feature: Confirmar salida y descontar inventario
     And agota por completo el inventario del primer lote
     And descuenta la cantidad restante del segundo lote
     And registra la venta de manera segura
+
+
+
