@@ -2,13 +2,25 @@ name: Spring Boot CI (Solo Build y Test)
 
 on:
   push:
-    branches: [ "main", "develop" ] # Se ejecuta al pushear a estas ramas
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ] # Se ejecuta cuando haces un PR hacia main
+    branches: [ "main" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
+    # --- AQUÍ ESTÁ LA SOLUCIÓN ---
+    # Levantamos una base de datos MySQL temporal solo para que los tests pasen
+    services:
+      mysql:
+        image: mysql:8.0 # Usamos la imagen oficial de MySQL
+        env:
+          MYSQL_ROOT_PASSWORD: '12345678'
+          MYSQL_DATABASE: 'stocktrack-os-7391'
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout del código
@@ -17,11 +29,11 @@ jobs:
       - name: Configurar Java (JDK)
         uses: actions/setup-java@v4
         with:
-          java-version: '25' # Cambia esto si usas Java 21, 11, etc.
+          java-version: '25'
           distribution: 'temurin'
-          cache: maven # Muy importante para que sea rápido
+          cache: maven
 
-      - name: Compilar el proyecto (Sin correr pruebas aún)
+      - name: Compilar el proyecto
         run: mvn clean compile
 
       - name: Ejecutar Pruebas Unitarias
