@@ -1,0 +1,28 @@
+name: Spring Boot CI (Solo Build y Test)
+
+on:
+  push:
+    branches: [ "main", "develop" ] # Se ejecuta al pushear a estas ramas
+  pull_request:
+    branches: [ "main" ] # Se ejecuta cuando haces un PR hacia main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java (JDK)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25' # Cambia esto si usas Java 21, 11, etc.
+          distribution: 'temurin'
+          cache: maven # Muy importante para que sea rápido
+
+      - name: Compilar el proyecto (Sin correr pruebas aún)
+        run: mvn clean compile
+
+      - name: Ejecutar Pruebas Unitarias
+        run: mvn test
