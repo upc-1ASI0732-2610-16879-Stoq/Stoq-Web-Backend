@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,6 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api/v1/products", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Products", description = "Endpoints for products")
+@PreAuthorize("hasRole('ROLE_ADMIN') or hasAuthority('inventory_access')")
 public class ProductController {
 
     private final ProductCommandService productCommandService;

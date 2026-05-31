@@ -11,6 +11,7 @@ import com.inventiapp.stocktrack.inventory.domain.services.BatchQueryService;
 import com.inventiapp.stocktrack.inventory.domain.services.KitQueryService;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductCommandService;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductQueryService;
+import com.inventiapp.stocktrack.alertstock.application.internal.StockAlertCommandServiceImpl;
 import com.inventiapp.stocktrack.inventory.interfaces.acl.InventoryContextFacade;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +28,21 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
     private final BatchQueryService batchQueryService;
     private final BatchCommandService batchCommandService;
     private final KitQueryService kitQueryService;
+    private final StockAlertCommandServiceImpl stockAlertCommandService;
 
 
-    public InventoryContextFacadeImpl(ProductQueryService productQueryService, ProductCommandService productCommandService, BatchQueryService batchQueryService, BatchCommandService batchCommandService, KitQueryService kitQueryService) {
+    public InventoryContextFacadeImpl(ProductQueryService productQueryService,
+                                      ProductCommandService productCommandService,
+                                      BatchQueryService batchQueryService,
+                                      BatchCommandService batchCommandService,
+                                      KitQueryService kitQueryService,
+                                      StockAlertCommandServiceImpl stockAlertCommandService) {
         this.productQueryService = productQueryService;
         this.productCommandService = productCommandService;
         this.batchQueryService = batchQueryService;
         this.batchCommandService = batchCommandService;
         this.kitQueryService = kitQueryService;
+        this.stockAlertCommandService = stockAlertCommandService;
     }
 
 
@@ -92,6 +100,8 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
         if (remaining > 0) {
             throw new IllegalStateException("Stock insuficiente. Faltan " + remaining + " unidades.");
         }
+
+        stockAlertCommandService.evaluateLowStockAfterMovement(productId);
     }
 
     @Override

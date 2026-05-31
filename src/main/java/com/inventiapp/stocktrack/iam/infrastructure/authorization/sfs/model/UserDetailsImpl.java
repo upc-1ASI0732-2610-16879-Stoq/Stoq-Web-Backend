@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +47,20 @@ public class UserDetailsImpl implements UserDetails {
      * @return UserDetailsImpl instance
      */
     public static UserDetailsImpl build(User user) {
-        var authorities = user.getRoles().stream()
+        var roleAuthorities = user.getRoles().stream()
                 .map(role -> role.getName().name())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+
+        var permissionAuthorities = user.getPermissions() == null
+                ? List.<GrantedAuthority>of()
+                : user.getPermissions().stream()
+                        .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+                        .collect(Collectors.toList());
+
+        var authorities = new java.util.ArrayList<GrantedAuthority>();
+        authorities.addAll(roleAuthorities);
+        authorities.addAll(permissionAuthorities);
 
         return new UserDetailsImpl(
                 user.getEmail(),
