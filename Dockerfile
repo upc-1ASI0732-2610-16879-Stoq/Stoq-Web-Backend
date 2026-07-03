@@ -7,5 +7,6 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:25-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+ENV SPRING_PROFILES_ACTIVE=prod
 EXPOSE 8080
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

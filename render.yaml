@@ -1,0 +1,22 @@
+# Plantilla para Render (Web Service con Docker).
+# En el dashboard: Environment → añade estas variables con tus valores de Aiven.
+services:
+  - type: web
+    name: stocktrack-backend
+    runtime: docker
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false

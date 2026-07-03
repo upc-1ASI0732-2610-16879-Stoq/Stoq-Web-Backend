@@ -6,6 +6,7 @@ import com.inventiapp.stocktrack.iam.domain.model.aggregates.User;
 import com.inventiapp.stocktrack.iam.domain.model.commands.CreateUserCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.SignInCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.SignUpCommand;
+import com.inventiapp.stocktrack.iam.domain.model.commands.ResetPasswordCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.UpdateUserCommand;
 import com.inventiapp.stocktrack.iam.domain.model.entities.Role;
 import com.inventiapp.stocktrack.iam.domain.model.valueobjects.Roles;
@@ -187,6 +188,29 @@ public class UserCommandServiceImpl implements UserCommandService {
                     .collect(Collectors.toSet());
             user.setPermissions(permissions);
         }
+
+        return Optional.of(userRepository.save(user));
+    }
+
+    /**
+     * Handle the reset password command
+     * <p>
+     *     Resets the password for an existing user identified by email.
+     *     Permissions and roles remain unchanged.
+     * </p>
+     * @param command the reset password command containing email and new password
+     * @return the updated user if the email exists
+     */
+    @Override
+    public Optional<User> handle(ResetPasswordCommand command) {
+        var userOpt = userRepository.findByEmail(command.email());
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var user = userOpt.get();
+        var encodedPassword = hashingService.encode(command.password());
+        user.setPassword(encodedPassword);
 
         return Optional.of(userRepository.save(user));
     }

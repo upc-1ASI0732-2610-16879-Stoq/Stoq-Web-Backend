@@ -4,8 +4,10 @@ import com.inventiapp.stocktrack.iam.application.internal.outboundservices.token
 import com.inventiapp.stocktrack.iam.domain.services.UserCommandService;
 import com.inventiapp.stocktrack.iam.interfaces.rest.resources.AuthenticatedUserResource;
 import com.inventiapp.stocktrack.iam.interfaces.rest.resources.SignInResource;
+import com.inventiapp.stocktrack.iam.interfaces.rest.resources.ResetPasswordResource;
 import com.inventiapp.stocktrack.iam.interfaces.rest.resources.SignUpResource;
 import com.inventiapp.stocktrack.iam.interfaces.rest.transform.AuthenticatedUserResourceFromEntityAssembler;
+import com.inventiapp.stocktrack.iam.interfaces.rest.transform.ResetPasswordCommandFromResourceAssembler;
 import com.inventiapp.stocktrack.iam.interfaces.rest.transform.SignInCommandFromResourceAssembler;
 import com.inventiapp.stocktrack.iam.interfaces.rest.transform.SignUpCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -92,6 +94,26 @@ public class AuthenticationController {
         var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(user, token);
         
         return new ResponseEntity<>(authenticatedUserResource, HttpStatus.CREATED);
+    }
+
+    /**
+     * Reset password endpoint
+     * @param resetPasswordResource The {@link ResetPasswordResource} instance
+     * @return A no content response if the password was reset, or not found if the email does not exist
+     */
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password", description = "Reset a user's password using their email address")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordResource resetPasswordResource) {
+        var command = ResetPasswordCommandFromResourceAssembler.toCommandFromResource(resetPasswordResource);
+        var result = userCommandService.handle(command);
+
+        return result.isPresent()
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.notFound().build();
     }
 }
 

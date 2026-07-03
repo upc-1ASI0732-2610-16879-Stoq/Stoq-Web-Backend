@@ -4,6 +4,7 @@ import com.inventiapp.stocktrack.iam.domain.model.aggregates.User;
 import com.inventiapp.stocktrack.iam.domain.model.commands.CreateUserCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.SignInCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.SignUpCommand;
+import com.inventiapp.stocktrack.iam.domain.model.commands.ResetPasswordCommand;
 import com.inventiapp.stocktrack.iam.domain.model.commands.UpdateUserCommand;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -41,6 +42,13 @@ public interface UserCommandService {
      * @return Optional User if updated successfully
      */
     Optional<User> handle(UpdateUserCommand command);
+
+    /**
+     * Handle password reset command (public recovery flow)
+     * @param command The reset password command
+     * @return Optional User if password was reset successfully
+     */
+    Optional<User> handle(ResetPasswordCommand command);
 
     /**
      * Delete a user by ID
