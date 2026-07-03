@@ -20,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -95,8 +96,11 @@ public class WebSecurityConfiguration {
         }));
 
         http.csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptionHandling -> 
-                        exceptionHandling.authenticationEntryPoint(unauthorizedRequestHandlerEntryPoint))
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .authenticationEntryPoint(unauthorizedRequestHandlerEntryPoint)
+                                .accessDeniedHandler((request, response, accessDeniedException) ->
+                                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Error: Forbidden")))
                 .sessionManagement(sessionManagement -> 
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
