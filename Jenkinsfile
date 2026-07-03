@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            label ''
+
+            customWorkspace '/var/jenkins_home/workspace/backend-pipeline-16879'
+        }
+    }
 
     environment {
         GITHUB_CREDENTIALS_ID = 'github-credentials'
@@ -21,20 +27,18 @@ pipeline {
                 script {
                     echo 'Levantando base de datos MySQL temporal usando contenedor auxiliar...'
 
-                    // Usamos una imagen ligera oficial de Docker solo para lanzar el comando run
-                    sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker run --name test-db-mysql --network jenkins -d -e MYSQL_ROOT_PASSWORD=${DB_PASSWORD} -e MYSQL_DATABASE=${DB_NAME} -p 3306:3306 ${DB_IMAGE}"
+                    // Añadimos --user root al contenedor auxiliar para asegurar la lectura del socket
+                    sh "docker run --rm --user root -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker run --name test-db-mysql --network jenkins -d -e MYSQL_ROOT_PASSWORD=${DB_PASSWORD} -e MYSQL_DATABASE=${DB_NAME} -p 3306:3306 ${DB_IMAGE}"
 
                     echo 'Esperando que MySQL inicialice...'
                     sh "sleep 15"
 
                     try {
                         echo 'Compilando y ejecutando pruebas unitarias con Maven...'
-                        // Corremos Maven apuntando a la red de Jenkins
-                        sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock --network jenkins -v \$(pwd):/app -w /app maven:3.9-eclipse-temurin-17 mvn clean test"
+                        sh "docker run --rm --user root -v /var/run/docker.sock:/var/run/docker.sock --network jenkins -v \$(pwd):/app -w /app maven:3.9-eclipse-temurin-17 mvn clean test"
                     } finally {
                         echo 'Limpiando el contenedor de la base de datos temporal...'
-                        // Usamos el contenedor auxiliar para borrar el MySQL
-                        sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker rm -f test-db-mysql"
+                        sh "docker run --rm --user root -v /var/run/docker.sock:/var/run/docker.sock docker:cli docker rm -f test-db-mysql"
                     }
                 }
             }
@@ -43,8 +47,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Creando la imagen Docker final del Backend...'
-                // Usamos el contenedor auxiliar para construir tu imagen final
-                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v \$(pwd):/app -w /app docker:cli docker build -t ${IMAGE_NAME}:latest ."
+                sh "docker run --rm --user root -v /var/run/docker.sock:/var/run/docker.sock -v \$(pwd):/app -w /app docker:cli docker build -t ${IMAGE_NAME}:latest ."
             }
         }
     }
