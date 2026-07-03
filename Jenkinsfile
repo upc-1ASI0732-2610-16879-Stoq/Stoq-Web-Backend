@@ -4,6 +4,7 @@ pipeline {
     tools {
         // Le dice a Jenkins que use el Maven autogestionado del Paso 1
         maven 'maven-3.9'
+        jdk 'jdk-17'
     }
 
     environment {
