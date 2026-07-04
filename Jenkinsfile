@@ -35,7 +35,7 @@ pipeline {
             steps {
                 echo '¡CI aprobado! Notificando a Render para iniciar el Despliegue Continuo (CD)...'
 
-                sh 'curl -X POST "${RENDER_WEBHOOK}"'
+                sh "curl -X POST '${RENDER_WEBHOOK}'"
             }
         }
     }
