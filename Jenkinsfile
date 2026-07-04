@@ -2,14 +2,15 @@ pipeline {
     agent any
 
     tools {
-        // Le dice a Jenkins que use el Maven autogestionado del Paso 1
-        maven 'maven-3.9'
         jdk 'jdk-17'
+        maven 'maven-3.9'
     }
 
     environment {
         GITHUB_CREDENTIALS_ID = 'github-credentials'
         IMAGE_NAME = 'proyecto-backend'
+
+        RENDER_WEBHOOK = credentials('render-deploy-webhook')
     }
 
     stages {
@@ -22,15 +23,26 @@ pipeline {
         stage('Build & Test') {
             steps {
                 echo 'Compilando el proyecto backend de Spring Boot con Maven nativo...'
-                // Ejecuta la compilación nativa de Java sin depender del comando 'docker'
                 sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Deploy to Render') {
+            // despliega solo en main
+            when {
+                branch 'main'
+            }
+            steps {
+                echo '¡CI aprobado! Notificando a Render para iniciar el Despliegue Continuo (CD)...'
+
+                sh 'curl -X POST "${RENDER_WEBHOOK}"'
             }
         }
     }
 
     post {
         success {
-            echo '¡CI del Backend ejecutado con éxito de forma nativa!'
+            echo '¡Pipeline ejecutado con éxito!'
         }
         failure {
             echo 'Algo falló en el pipeline. Revisa los logs.'
