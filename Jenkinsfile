@@ -30,7 +30,7 @@ pipeline {
         stage('Deploy to Render') {
             // despliega solo en main
             when {
-                branch 'main'
+                branch 'develop'
             }
             steps {
                 echo '¡CI aprobado! Notificando a Render para iniciar el Despliegue Continuo (CD)...'
